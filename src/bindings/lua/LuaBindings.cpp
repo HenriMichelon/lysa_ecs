@@ -7,16 +7,13 @@
 module lysa.ecs.lua;
 
 import vireo;
-import lysa.context;
-import lysa.lua;
 import lysa.math;
 import lysa.ecs.components;
 import lysa.ecs.systems;
 
 namespace lysa::ecs {
 
-    void LuaBindings::_register(lysa::Context& ctx) {
-        const auto lua = Lua(ctx, {});
+    void LuaBindings::_register(const lysa::Lua& lua) {
         lua.beginNamespace("ecs")
             .beginClass<RenderTarget>("RenderTarget")
                 .addConstructor<void(unique_id)>()

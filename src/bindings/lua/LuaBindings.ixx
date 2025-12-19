@@ -6,13 +6,12 @@
 */
 export module lysa.ecs.lua;
 
-import lysa.context;
+import lysa.lua;
 
 export namespace lysa::ecs {
 
-    class LuaBindings {
-    public:
-        static void _register(Context& ctx);
+    struct LuaBindings {
+        static void _register(const Lua& lua);
     };
 
 }

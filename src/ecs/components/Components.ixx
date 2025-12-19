@@ -10,10 +10,14 @@ import vireo;
 import lysa.aabb;
 import lysa.context;
 import lysa.math;
+import lysa.context;
+#ifdef LUA_BINDING
+import lysa.lua;
+#endif
+import lysa.renderers.graphic_pipeline_data;
 
 export import lysa.ecs.components.transform;
 export import lysa.ecs.flecs;
-import lysa.renderers.graphic_pipeline_data;
 
 export namespace lysa::ecs {
     struct Updated {};
@@ -23,6 +27,12 @@ export namespace lysa::ecs {
     struct Context {
         lysa::Context* ctx;
     };
+
+#ifdef LUA_BINDING
+    struct Lua {
+        const lysa::Lua* lua;
+    };
+#endif
 
     struct RenderTarget {
         unique_id renderTarget{INVALID_ID};

@@ -10,19 +10,32 @@ import lysa;
 export import lysa.ecs.components;
 export import lysa.ecs.flecs;
 export import lysa.ecs.systems;
+#ifdef LUA_BINDING
+export import lysa.ecs.lua;
+#endif
 
 export namespace lysa::ecs {
 
     struct ecs {
-        ecs(lysa::Context& ctx):
+        ecs(lysa::Context& ctx
+#ifdef LUA_BINDING
+            , const lysa::Lua& lua
+#endif
+            ):
             world(flecs::world()) {
             world.set<Context>({&ctx});
+#ifdef LUA_BINDING
+            world.set<Lua>({&lua});
+#endif
             modules = std::make_unique<Modules>(world);
             ctx.events.subscribe(MainLoopEvent::PHYSICS_PROCESS, [&] (const Event&){
                 if (!world.progress()) {
                     ctx.exit = true;
                 }
             });
+#ifdef LUA_BINDING
+            LuaBindings::_register(lua);
+#endif
         }
 
         flecs::world world;
