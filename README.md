@@ -1,3 +1,5 @@
 # Lysa ECS
 
-ECS system for the Lysa engine
+ECS addon for the [Lysa engine](https://github.com/HenriMichelon/lysa) using [Flecs](https://www.flecs.dev/flecs/)
+
+
