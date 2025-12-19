@@ -93,6 +93,6 @@ set(LYSA_ECS_MODULES
         ${SRC_DIR}/ecs/components/Components.ixx
         ${SRC_DIR}/ecs/components/Transform.ixx
         ${SRC_DIR}/ecs/systems/Systems.ixx
-        ${v}
+        ${LUA_BINDINGS_MODULES}
        )
 build_target(${PROJECT_NAME} "${LYSA_ECS_SRC}" "${LYSA_ECS_MODULES}")
