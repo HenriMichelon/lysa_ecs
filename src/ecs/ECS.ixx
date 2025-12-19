@@ -25,17 +25,15 @@ export namespace lysa::ecs {
             world(flecs::world()) {
             world.set<Context>({&ctx});
 #ifdef LUA_BINDING
+            LuaBindings::_register(lua);
             world.set<Lua>({&lua});
 #endif
             modules = std::make_unique<Modules>(world);
-            ctx.events.subscribe(MainLoopEvent::PHYSICS_PROCESS, [&] (const Event&){
+            ctx.events.subscribe(MainLoopEvent::PROCESS, [&] (const Event&){
                 if (!world.progress()) {
                     ctx.exit = true;
                 }
             });
-#ifdef LUA_BINDING
-            LuaBindings::_register(lua);
-#endif
         }
 
         flecs::world world;
