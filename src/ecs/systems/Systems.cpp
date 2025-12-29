@@ -9,9 +9,7 @@ module lysa.ecs.systems;
 import lysa.aabb;
 import lysa.log;
 import lysa.math;
-import lysa.resources.mesh;
 import lysa.resources.render_target;
-import lysa.resources.scene_context;
 import lysa.renderers.graphic_pipeline_data;
 
 namespace lysa::ecs {
@@ -28,61 +26,52 @@ namespace lysa::ecs {
         meshInstanceModule.disable();
     }
 
-    MeshInstanceModule::MeshInstanceModule(const flecs::world& w) {
-        auto& meshManager = w.get<Context>().ctx->res.get<MeshManager>();
-        auto& sceneContextManager = w.get<Context>().ctx->res.get<SceneContextManager>();
-        w.module<MeshInstanceModule>();
-        w.component<Visible>();
-        w.component<CastShadows>();
-        w.component<MeshInstance>();
-        w.observer<const Scene, MeshInstance, const Transform>()
-            .term_at(0).parent()
-            .event(flecs::OnSet)
-            .each([&](const flecs::entity e, const Scene& sceneRef, MeshInstance& mi, const Transform& tr) {
-                if (mi.mesh == INVALID_ID) { return; }
-                if (mi.meshInstance) {
-                    e.add<Updated>();
-                } else {
-                    auto& scene = sceneContextManager[sceneRef.context];
-                    auto aabb = meshManager[mi.mesh].getAABB().toGlobal(tr.global);
-                    mi.meshInstance = std::make_shared<MeshInstanceDesc>(
-                        meshManager[mi.mesh],
-                        e.has<Visible>(),
-                        e.has<CastShadows>(),
-                        aabb,
-                        tr.global);
-                    scene.addInstance(mi.meshInstance, false);
-                }
-            });
-        w.observer<const Scene, MeshInstance, Transform>()
-            .term_at(0).parent()
-            .event(flecs::OnAdd)
-            .each([&](const flecs::entity e, const Scene& sceneRef, MeshInstance& mi, Transform& tr) {
-                if (mi.mesh == INVALID_ID) { return; }
-                auto& scene = sceneContextManager[sceneRef.context];
-                TransformModule::updateGlobalTransform(e, tr);
+    void MeshInstanceModule::addInstance(
+        const flecs::entity e,
+        const Scene& sc,
+        const Transform& tr) const {
+        if (e.has<MeshInstance>()) {
+            auto& mi = e.get_mut<MeshInstance>();
+            if (!mi.meshInstance) {
                 mi.meshInstance = std::make_shared<MeshInstanceDesc>(
                     meshManager[mi.mesh],
                     e.has<Visible>(),
                     e.has<CastShadows>(),
                     meshManager[mi.mesh].getAABB().toGlobal(tr.global),
                     tr.global);
-                scene.addInstance(mi.meshInstance, false);
-                e.children([&](const flecs::entity child) {
-                    if (child.has<Transform>() && child.has<MeshInstance>()) {
-                        auto& m = child.get_mut<MeshInstance>();
-                        if (!m.meshInstance) {
-                            auto& t = child.get<Transform>();
-                            m.meshInstance = std::make_shared<MeshInstanceDesc>(
-                                meshManager[m.mesh],
-                                child.has<Visible>(),
-                                child.has<CastShadows>(),
-                                meshManager[m.mesh].getAABB().toGlobal(t.global),
-                                t.global);
-                        }
-                        scene.addInstance(m.meshInstance, false);
-                    }
-                });
+            }
+            sceneContextManager[sc.context].addInstance(mi.meshInstance, false);
+        }
+        e.children([&](const flecs::entity child) {
+            addInstance(child, sc, tr);
+        });
+    }
+
+    MeshInstanceModule::MeshInstanceModule(const flecs::world& w):
+        meshManager(w.get<Context>().ctx->res.get<MeshManager>()),
+        sceneContextManager(w.get<Context>().ctx->res.get<SceneContextManager>()) {
+        w.module<MeshInstanceModule>();
+        w.component<Visible>();
+        w.component<CastShadows>();
+        w.component<MeshInstance>();
+        w.observer<const Scene, const MeshInstance, const Transform>()
+            .term_at(0).parent()
+            .event(flecs::OnSet)
+            .each([&](const flecs::entity e, const Scene& sc, const MeshInstance& mi, const Transform&tr) {
+                if (mi.mesh == INVALID_ID) { return; }
+                if (mi.meshInstance) {
+                    e.add<Updated>();
+                } else {
+                    addInstance(e, sc, tr);
+                }
+            });
+        w.observer<const Scene, Transform>()
+            .term_at(0).parent()
+            .event(flecs::OnAdd)
+            .each([&](const flecs::entity e, const Scene& sc, Transform& tr) {
+                if (sc.context == INVALID_ID ) { return; }
+                addInstance(e, sc, tr);
+                TransformModule::updateGlobalTransform(e, tr);
             });
         w.observer<const Scene>()
             .event(flecs::OnRemove)

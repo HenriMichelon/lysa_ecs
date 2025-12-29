@@ -8,6 +8,8 @@ export module lysa.ecs.systems;
 
 import std;
 import lysa.types;
+import lysa.resources.mesh;
+import lysa.resources.scene_context;
 export import lysa.ecs.components;
 export import lysa.ecs.flecs;
 
@@ -19,8 +21,16 @@ export namespace lysa::ecs {
         static void updateGlobalTransform(flecs::entity e, Transform& t);
     };
 
-    struct MeshInstanceModule {
+    class MeshInstanceModule {
+    public:
         MeshInstanceModule(const flecs::world& w);
+    private:
+        MeshManager& meshManager;
+        SceneContextManager& sceneContextManager;
+        void addInstance(
+            flecs::entity e,
+            const Scene& sc,
+            const Transform& tr) const;
     };
 
     struct RenderModule {
