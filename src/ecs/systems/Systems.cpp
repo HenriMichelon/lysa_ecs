@@ -193,6 +193,24 @@ namespace lysa::ecs {
                     cameraDesc,
                     scene});
         });
+        w.observer<const Viewport>()
+            .event(flecs::OnSet)
+            .each([&](const flecs::entity e, const Viewport vp) {
+                if (e.parent() && e.parent().has<RenderTarget>()) {
+                    auto& rt = e.parent().get<RenderTarget>();
+                    if (!renderTargetManager.have(rt.renderTarget)) return;
+                    auto& renderTarget = renderTargetManager[rt.renderTarget];
+                    const auto id = static_cast<const unique_id>(e.id());
+                    const auto& view = std::ranges::find_if(renderTarget.getViews(), [&](const RenderView&v) {
+                        return v.id == id;
+                    });
+                    if (view != renderTarget.getViews().end()) {
+                        view->viewport = vp.viewport;
+                        view->scissors = vp.scissors;
+                        Log::info("set viewport");
+                    }
+                }
+        });
         w.observer<const RenderTarget, const CameraRef, const SceneRef>()
             .term_at(0).parent()
             .event(flecs::OnRemove)
