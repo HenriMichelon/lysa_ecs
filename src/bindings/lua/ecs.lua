@@ -101,10 +101,15 @@ return {
     ---@param angle number
     rotate_z = ecs.rotate_z,
 
+    ---@param e ecs.entity
+    ---@param uri string
+    load = ecs.load,
+
     ---@return ecs.entity
     child_of = ecs.child_of,
 
     ---@class ecs.world
-    ---@field entity fun(self:ecs.world):ecs.entity
+    ---@overload entity fun(self:ecs.world):ecs.entity
+    ---@overload entity fun(self:ecs.world, name:string):ecs.entity
     world = ecs.world,
 }

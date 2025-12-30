@@ -8,8 +8,7 @@ module lysa.ecs.lua;
 
 import vireo;
 import lysa.math;
-import lysa.ecs.components;
-import lysa.ecs.systems;
+import lysa.ecs;
 
 namespace lysa::ecs {
 
@@ -83,15 +82,26 @@ namespace lysa::ecs {
             .addFunction("rotate_y",&rotateY)
             .addFunction("rotate_z",&rotateZ)
 
+            .addFunction("load",
+                luabridge::overload<flecs::entity&, const std::string&>(&load)
+            )
+
             .beginClass<flecs::world>("world")
-                .addFunction("entity", +[](const flecs::world* w) { return w->entity<>(); })
+                .addFunction("entity",
+                    luabridge::overload<const flecs::world*>(+[](const flecs::world* w) {
+                        return w->entity<>();
+                    }),
+                    luabridge::overload<const flecs::world*, const char*>(+[](const flecs::world* w, const char* name) {
+                        return w->entity<>(name);
+                    })
+                )
             .endClass()
             .addProperty("child_of", +[]{ return flecs::ChildOf;})
 
             .beginClass<flecs::entity>("entity")
                 .addProperty("is_alive", +[](const flecs::entity* e) { return e->is_alive(); })
                 .addFunction("destruct", &flecs::entity::destruct)
-                .addFunction("child_of", +[](const flecs::entity* e, const flecs::entity p) {
+                .addFunction("child_of", +[](const flecs::entity* e, const flecs::entity& p) {
                     return e->add(flecs::ChildOf, p);
                 })
                 .addFunction("add",
