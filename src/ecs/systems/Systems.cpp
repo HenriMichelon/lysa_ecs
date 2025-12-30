@@ -9,6 +9,7 @@ module lysa.ecs.systems;
 import lysa.aabb;
 import lysa.log;
 import lysa.math;
+import lysa.resources.camera;
 import lysa.resources.render_target;
 import lysa.renderers.graphic_pipeline_data;
 
@@ -145,6 +146,7 @@ namespace lysa::ecs {
     RenderModule::RenderModule(const flecs::world& w) {
         auto& renderTargetManager = w.get<Context>().ctx->res.get<RenderTargetManager>();
         auto& sceneContextManager = w.get<Context>().ctx->res.get<SceneContextManager>();
+        auto& cameraManager = w.get<Context>().ctx->res.get<CameraManager>();
         w.module<RenderModule>();
         w.component<Scene>();
         w.component<SceneRef>();
@@ -179,6 +181,28 @@ namespace lysa::ecs {
            .each([&](const Scene&sc) {
                sceneContextManager.destroy(sc.context);
            });
+        w.observer<Camera, const Transform>()
+            .event(flecs::OnAdd)
+            .event(flecs::OnSet)
+            .each([&](Camera&c, const Transform& tr) {
+                if (c.camera == INVALID_ID) {
+                    c.camera = cameraManager.create(
+                        tr.global[3].xyz,
+                        tr.global,
+                        c.projection
+                    ).id;
+                } else {
+                    auto& camera = cameraManager[c.camera];
+                    camera.position = tr.global[3].xyz;
+                    camera.transform = tr.global;
+                    camera.projection = c.projection;
+                }
+            });
+        w.observer<const Camera>()
+           .event(flecs::OnRemove)
+           .each([&](const Camera&c) {
+               cameraManager.destroy(c.camera);
+           });
         w.observer<const RenderTarget, const CameraRef, const SceneRef>()
             .term_at(0).parent()
             .event(flecs::OnSet)
@@ -186,13 +210,7 @@ namespace lysa::ecs {
                 if (!renderTargetManager.have(rt.renderTarget)) return;
                 auto& renderTarget = renderTargetManager[rt.renderTarget];
                 auto& scene = sceneContextManager[sr.scene.get<Scene>().context];
-                const auto camera = cr.camera.get<Camera>();
-                const auto cameraTransform = cr.camera.get<Transform>().global;
-                const auto cameraDesc = CameraDesc{
-                   .position = cameraTransform[3].xyz,
-                   .transform = cameraTransform,
-                   .projection = camera.projection
-                };
+                const auto& camera = cameraManager[cr.camera.get<Camera>().camera];
                 Viewport viewport;
                 if (e.has<Viewport>()) {
                    viewport = e.get<Viewport>();
@@ -202,7 +220,7 @@ namespace lysa::ecs {
                     static_cast<const unique_id>(e.id()),
                     viewport.viewport,
                     viewport.scissors,
-                    cameraDesc,
+                    camera,
                     scene});
         });
         w.observer<const Viewport>()

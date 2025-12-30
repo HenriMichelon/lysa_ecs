@@ -70,6 +70,8 @@ export namespace lysa::ecs {
         float bottom{};
         // World projection matrix
         float4x4 projection{float4x4::identity()};
+
+        unique_id camera{INVALID_ID};
     };
 
     struct CameraRef {
