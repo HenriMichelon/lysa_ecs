@@ -28,73 +28,73 @@ export namespace lysa::ecs {
     /**
     * Returns the world space position
     */
-    float3 getPositionGlobal(flecs::entity e);
+    float3 getPositionGlobal(const flecs::entity& e);
 
     /**
     * Returns the local space position
     */
-    float3 getPosition(flecs::entity e);
+    float3 getPosition(const flecs::entity& e);
 
     /**
     * Sets the world space position
     */
-    void setPositionGlobal(flecs::entity e, const float3& position);
+    void setPositionGlobal(const flecs::entity& e, const float3& position);
 
     /**
     * Sets the world space position
     */
-    void setPositionGlobal(const flecs::entity e, const float x, const float y, const float z) {
+    void setPositionGlobal(const flecs::entity& e, const float x, const float y, const float z) {
         setPositionGlobal(e, float3{x, y, z});
     }
 
     /**
     * Sets the local space position
     */
-    void setPosition(flecs::entity e, const float3& position);
+    void setPosition(const flecs::entity& e, const float3& position);
 
     /**
     * Sets the local space position
     */
-    void setPosition(const flecs::entity e, const float x, const float y, const float z) {
+    void setPosition(const flecs::entity& e, const float x, const float y, const float z) {
         setPosition(e, float3{x, y, z});
     }
 
     /**
     * Changes the entity's position by the given offset vector in local space.
     */
-    void translate(flecs::entity e, const float3& localOffset);
+    void translate(const flecs::entity& e, const float3& localOffset);
 
     /**
     * Changes the entity's position by the given offset vector in local space.
     */
-    void translate(const flecs::entity e, const float localOffsetX, const float localOffsetY, const float localOffsetZ) {
+    void translate(const flecs::entity& e, const float localOffsetX, const float localOffsetY, const float localOffsetZ) {
         translate(e, float3{localOffsetX, localOffsetY, localOffsetZ});
     }
 
     /**
     * Scale the local transformation
     */
-    void scale(flecs::entity e, const float& scale);
+    void scale(const flecs::entity& e, const float& scale);
 
     /**
     * Returns the scale part of the local transformation.
     */
-    float3 getScale(flecs::entity e);
+    float3 getScale(const flecs::entity& e);
 
     /**
     * Returns the scale part of the world transformation.
     */
-    float3 getScaleGlobal(flecs::entity e);
+    float3 getScaleGlobal(const flecs::entity& e);
 
     /**
     * Returns the rotation of the local transformation
     */
-    quaternion getRotation(flecs::entity e);
+    quaternion getRotation(const flecs::entity& e);
 
     /**
     * Returns the rotation of the world transformation
     */
-    quaternion getRotationGlobal(flecs::entity e);
+    quaternion getRotationGlobal(const flecs::entity& e);
 
     /**
     * Returns the rotation of the local transformation, in euler angles in radians
@@ -113,114 +113,114 @@ export namespace lysa::ecs {
     /**
     * Sets the rotation of local transformation
     */
-    void setRotation(flecs::entity e, const quaternion& quat);
+    void setRotation(const flecs::entity& e, const quaternion& quat);
 
     /**
     * Sets the rotation world local transformation
     */
-    void setRotationGlobal(flecs::entity e, const quaternion& quat);
+    void setRotationGlobal(const flecs::entity& e, const quaternion& quat);
 
     /**
     * Rotates the local transformation around the X axis by angle in radians.
     */
-    void rotateX(flecs::entity e, float angle);
+    void rotateX(const flecs::entity& e, float angle);
 
     /**
      * Rotates the local transformation around the Y axis by angle in radians.
      */
-    void rotateY(flecs::entity e, float angle);
+    void rotateY(const flecs::entity& e, float angle);
 
     /**
      * Rotates the local transformation around the Z axis by angle in radians.
      */
-    void rotateZ(flecs::entity e, float angle);
+    void rotateZ(const flecs::entity& e, float angle);
 
     /**
      * Returns the X axis rotation of the local transformation in radians
      */
-    float getRotationX(const flecs::entity e) {
+    float getRotationX(const flecs::entity& e) {
         return euler_angles(getRotation(e)).x;
     }
 
     /**
      * Returns the Y axis rotation of the local transformation in radians
      */
-    float getRotationY(const flecs::entity e) {
+    float getRotationY(const flecs::entity& e) {
         return euler_angles(getRotation(e)).y;
     }
 
     /**
      * Returns the Z axis rotation of the local transformation in radians
      */
-    float getRotationZ(const flecs::entity e) {
+    float getRotationZ(const flecs::entity& e) {
         return euler_angles(getRotation(e)).z;
     }
 
     /**
     * Sets the X axis rotation of the local transformation by angle in radians.
     */
-    void setRotationX(const flecs::entity e, const float angle)  {
+    void setRotationX(const flecs::entity& e, const float angle)  {
         rotateX(e, angle - getRotationX(e));
     }
 
     /**
      * Sets the Y axis rotation of the local transformation by angle in radians.
      */
-    void setRotationY(const flecs::entity e, const float angle) {
+    void setRotationY(const flecs::entity& e, const float angle) {
         rotateY(e, angle - getRotationY(e));
     }
 
     /**
      * Sets the Z axis rotation of the local transformation by angle in radians.
      */
-    void setRotationZ(const flecs::entity e, const float angle) {
+    void setRotationZ(const flecs::entity& e, const float angle) {
         rotateZ(e, angle - getRotationZ(e));
     }
 
     /**
      * Transforms a local vector from this node's local space to world space.
      */
-    float3 toGlobal(flecs::entity e, const float3& local);
+    float3 toGlobal(const flecs::entity& e, const float3& local);
 
     /**
      * Transforms a world space vector to this node's local space.
      */
-    float3 toLocal(flecs::entity e, const float3& global);
+    float3 toLocal(const flecs::entity& e, const float3& global);
 
     /**
      * Returns the normalized right vector
      */
-    float3 getRightVector(flecs::entity e);
+    float3 getRightVector(const flecs::entity& e);
 
     /**
      * Returns the normalized left vector
      */
-    float3 getLeftVector(flecs::entity e);
+    float3 getLeftVector(const flecs::entity& e);
 
     /**
      * Returns the normalized front vector
      */
-    float3 getFrontVector(flecs::entity e);
+    float3 getFrontVector(const flecs::entity& e);
 
     /**
      * Returns the normalized back vector
      */
-    float3 getBackVector(flecs::entity e);
+    float3 getBackVector(const flecs::entity& e);
 
     /**
      * Returns the normalized up vector
      */
-    float3 getUpVector(flecs::entity e);
+    float3 getUpVector(const flecs::entity& e);
 
     /**
      * Returns the normalized down vector
      */
-    float3 getDownVector(flecs::entity e);
+    float3 getDownVector(const flecs::entity& e);
 
     /**
      * Rotates the entity toward the target
      */
-    void lookAt(flecs::entity e, const float3& target);
+    void lookAt(const flecs::entity& e, const float3& target);
 
 
 }

@@ -27,7 +27,7 @@ namespace lysa::ecs {
     }
 
     void MeshInstanceModule::addInstance(
-        const flecs::entity e,
+        const flecs::entity& e,
         const Scene& sc,
         const Transform& tr) const {
         if (e.has<MeshInstance>()) {

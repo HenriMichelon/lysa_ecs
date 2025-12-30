@@ -18,7 +18,7 @@ export namespace lysa::ecs {
     class TransformModule {
     public:
         TransformModule(const flecs::world& w);
-        static void updateGlobalTransform(flecs::entity e, Transform& t);
+        static void updateGlobalTransform(const flecs::entity& e, Transform& t);
     };
 
     class MeshInstanceModule {
@@ -28,7 +28,7 @@ export namespace lysa::ecs {
         MeshManager& meshManager;
         SceneContextManager& sceneContextManager;
         void addInstance(
-            flecs::entity e,
+            const flecs::entity& e,
             const Scene& sc,
             const Transform& tr) const;
     };

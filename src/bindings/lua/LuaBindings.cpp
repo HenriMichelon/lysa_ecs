@@ -72,12 +72,12 @@ namespace lysa::ecs {
             .endClass()
 
             .addFunction("set_position",
-                luabridge::overload<flecs::entity, const float3&>(&setPosition),
-                luabridge::overload<flecs::entity, float, float, float>(&setPosition)
+                luabridge::overload<const flecs::entity&, const float3&>(&setPosition),
+                luabridge::overload<const flecs::entity&, float, float, float>(&setPosition)
             )
             .addFunction("translate",
-                luabridge::overload<flecs::entity, const float3&>(&translate),
-                luabridge::overload<flecs::entity, float, float, float>(&translate)
+                luabridge::overload<const flecs::entity&, const float3&>(&translate),
+                luabridge::overload<const flecs::entity&, float, float, float>(&translate)
             )
             .addFunction("rotate_x",&rotateX)
             .addFunction("rotate_y",&rotateY)

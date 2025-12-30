@@ -11,7 +11,7 @@ import lysa.math;
 
 namespace lysa::ecs {
 
-     void TransformModule::updateGlobalTransform(const flecs::entity e, Transform& t) {
+     void TransformModule::updateGlobalTransform(const flecs::entity& e, Transform& t) {
           const float4x4 parentMatrix = e.parent() && e.parent().has<Transform>()
                ? e.parent().get<Transform>().global
                : float4x4::identity();

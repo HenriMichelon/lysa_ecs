@@ -21,22 +21,13 @@ export namespace lysa::ecs {
 #ifdef LUA_BINDING
             , const lysa::Lua& lua
 #endif
-            ):
-            world(flecs::world()) {
-            world.set<Context>({&ctx});
-#ifdef LUA_BINDING
-            LuaBindings::_register(lua);
-            world.set<Lua>({&lua});
-#endif
-            modules = std::make_unique<Modules>(world);
-            ctx.events.subscribe(MainLoopEvent::PROCESS, [&] (const Event&){
-                if (!world.progress()) {
-                    ctx.exit = true;
-                }
-            });
-        }
+        );
 
         flecs::world world;
         std::unique_ptr<Modules> modules;
     };
+
+    flecs::entity& load(flecs::entity& root, const std::string &fileURI);
+    flecs::entity& load(flecs::entity& root, std::ifstream &stream);
+
 }

@@ -80,6 +80,7 @@ endif ()
 
 #######################################################
 set(LYSA_ECS_SRC
+        ${SRC_DIR}/ecs/ECS.cpp
         ${SRC_DIR}/ecs/components/Components.cpp
         ${SRC_DIR}/ecs/components/Transform.cpp
         ${SRC_DIR}/ecs/systems/Systems.cpp
