@@ -73,6 +73,13 @@ namespace lysa::ecs {
                 addInstance(e, sc, tr);
                 TransformModule::updateGlobalTransform(e, tr);
             });
+        w.observer<MeshInstance>()
+            .event(flecs::OnRemove)
+            .each([&](MeshInstance& mi) {
+                meshManager.destroy(mi.mesh);
+                mi.mesh = INVALID_ID;
+                mi.meshInstance.reset();
+            });
         w.observer<const Scene>()
             .event(flecs::OnRemove)
             .each([&](const Scene&sc) {
