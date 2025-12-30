@@ -49,7 +49,7 @@ namespace lysa::ecs {
                 .addProperty("mesh", &MeshInstance::mesh)
             .endClass()
             .beginClass<Scene>("Scene")
-                .addConstructor<void(unique_id)>()
+                .addConstructor<void()>()
                 .addProperty("scene", &Scene::context)
             .endClass()
             .beginClass<SceneRef>("SceneRef")
@@ -132,8 +132,8 @@ namespace lysa::ecs {
                     luabridge::overload<const flecs::entity*, const MeshInstance&>(+[](const flecs::entity* e, const MeshInstance& p) {
                         return e->set<MeshInstance>(p);
                     }),
-                    luabridge::overload<const flecs::entity*, const Scene&>(+[](const flecs::entity* e, const Scene& p) {
-                        return e->set<Scene>(p);
+                    luabridge::overload<const flecs::entity*, const Scene&>(+[](const flecs::entity* e, const Scene&) {
+                        return e->add<Scene>();
                     }),
                     luabridge::overload<const flecs::entity*, const SceneRef&>(+[](const flecs::entity* e, const SceneRef& p) {
                         return e->set<SceneRef>(p);
