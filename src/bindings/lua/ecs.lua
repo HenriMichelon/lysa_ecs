@@ -102,6 +102,30 @@ return {
     rotate_z = ecs.rotate_z,
 
     ---@param e ecs.entity
+    ---@param angle number
+    set_rotation_x = ecs.set_rotation_x,
+
+    ---@param e ecs.entity
+    ---@param angle number
+    set_rotation_y = ecs.set_rotation_y,
+
+    ---@param e ecs.entity
+    ---@param angle number
+    set_rotation_z = ecs.set_rotation_z,
+
+    ---@param e ecs.entity
+    ---@return number
+    get_rotation_x = ecs.get_rotation_x,
+
+    ---@param e ecs.entity
+    ---@return number
+    get_rotation_y = ecs.get_rotation_y,
+
+    ---@param e ecs.entity
+    ---@return number
+    get_rotation_z = ecs.get_rotation_z,
+
+    ---@param e ecs.entity
     ---@param uri string
     load = ecs.load,
 

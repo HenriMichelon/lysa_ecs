@@ -81,6 +81,12 @@ namespace lysa::ecs {
             .addFunction("rotate_x",&rotateX)
             .addFunction("rotate_y",&rotateY)
             .addFunction("rotate_z",&rotateZ)
+            .addFunction("set_rotation_x",&setRotationX)
+            .addFunction("set_rotation_y",&setRotationY)
+            .addFunction("set_rotation_z",&setRotationZ)
+            .addFunction("get_rotation_x",&getRotationX)
+            .addFunction("get_rotation_y",&getRotationY)
+            .addFunction("get_rotation_z",&getRotationZ)
 
             .addFunction("load",
                 luabridge::overload<flecs::entity&, const std::string&>(&load)
