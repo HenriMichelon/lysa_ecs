@@ -19,7 +19,7 @@ namespace lysa::ecs {
                 .addProperty("render_target", &RenderTarget::renderTarget)
             .endClass()
             .beginClass<Viewport>("Viewport")
-                .addConstructor<void(vireo::Viewport), void(vireo::Viewport, vireo::Rect)>()
+                .addConstructor<void(), void(vireo::Viewport), void(vireo::Viewport, vireo::Rect)>()
                 .addProperty("viewport", &Viewport::viewport)
                 .addProperty("scissors", &Viewport::scissors)
             .endClass()
@@ -230,15 +230,33 @@ namespace lysa::ecs {
                         return e->remove<Transform>();
                     })
                 )
-                .addProperty("render_target", [](const flecs::entity* e) { return e->get<RenderTarget>(); })
-                .addProperty("viewport", [](const flecs::entity* e) { return e->get<Viewport>(); })
-                .addProperty("camera", [](const flecs::entity* e) { return e->get_mut<Camera>(); })
-                .addProperty("camera_ref", [](const flecs::entity* e) { return e->get<CameraRef>(); })
-                .addProperty("material_override", [](const flecs::entity* e) { return e->get<MaterialOverride>(); })
-                .addProperty("mesh_instance", [](const flecs::entity* e) { return e->get<MeshInstance>(); })
-                .addProperty("scene_ref", [](const flecs::entity* e) { return e->get<SceneRef>(); })
-                .addProperty("ambient_light", [](const flecs::entity* e) { return e->get<AmbientLight>(); })
-                .addProperty("transform", [](const flecs::entity* e) { return e->get<Transform>(); })
+                .addProperty("render_target", [](const flecs::entity* e) -> const RenderTarget& {
+                    return e->get<RenderTarget>();
+                })
+                .addProperty("viewport", [](const flecs::entity* e) -> const Viewport& {
+                    return e->get<Viewport>();
+                })
+                .addProperty("camera", [](const flecs::entity* e) -> Camera& {
+                    return e->get_mut<Camera>();
+                })
+                .addProperty("camera_ref", [](const flecs::entity* e) -> const CameraRef& {
+                    return e->get<CameraRef>();
+                })
+                .addProperty("material_override", [](const flecs::entity* e) -> const MaterialOverride& {
+                    return e->get<MaterialOverride>();
+                })
+                .addProperty("mesh_instance", [](const flecs::entity* e) -> const MeshInstance& {
+                    return e->get<MeshInstance>();
+                })
+                .addProperty("scene_ref", [](const flecs::entity* e) -> const SceneRef& {
+                    return e->get<SceneRef>();
+                })
+                .addProperty("ambient_light", [](const flecs::entity* e) -> const AmbientLight& {
+                    return e->get<AmbientLight>();
+                })
+                .addProperty("transform", [](const flecs::entity* e) -> const Transform& {
+                    return e->get<Transform>();
+                })
             .endClass()
         .endNamespace();
     }

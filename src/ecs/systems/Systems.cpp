@@ -153,16 +153,6 @@ namespace lysa::ecs {
         w.component<CameraRef>();
         w.component<Viewport>();
         w.component<RenderTarget>();
-        // w.observer<Camera>()
-        //     .event(flecs::OnSet)
-        //     .event(flecs::OnAdd)
-        //     .each([&](Camera& cp) {
-        //         if (cp.isPerspective) {
-        //             cp.projection = perspective(radians(cp.fov), cp.aspectRatio, cp.near, cp.far);
-        //         } else {
-        //             cp.projection = orthographic(cp.left, cp.right, cp.top, cp.bottom, cp.near, cp.far);
-        //         }
-        //     });
         w.observer<Scene, const AmbientLight>()
             .event(flecs::OnSet)
             .event(flecs::OnAdd)

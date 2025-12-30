@@ -55,7 +55,7 @@ export namespace lysa::ecs {
         // Field of view in degrees
         float fov{75.0};
         // Camera view aspect ratio
-        float aspectRatio{16.0f / 9.0f};
+        float aspectRatio{1.0f};
         // Nearest clipping distance
         float near{0.05f};
         // Furthest clipping distance
