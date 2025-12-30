@@ -7,6 +7,7 @@
 module lysa.ecs.components.transform;
 
 import lysa.math;
+import lysa.ecs.systems;
 
 namespace lysa::ecs {
 
@@ -24,9 +25,9 @@ namespace lysa::ecs {
 
     void setPosition(const flecs::entity& e, const float3& position) {
         if (any(position != getPosition(e))) {
-            auto t = e.get<Transform>();
+            auto& t = e.get_mut<Transform>();
             t.local[3] = float4{position, 1.0f};
-            e.set(t);
+            TransformModule::updateGlobalTransform(e, t);
         }
     }
 
@@ -37,24 +38,25 @@ namespace lysa::ecs {
                 return;
             }
             CHECK_TRANSFORM(e.parent());
-            auto t = e.parent().get<Transform>();
+            auto& t = e.parent().get_mut<Transform>();
             t.local[3] = mul(float4{position, 1.0}, inverse(t.global));
-            e.set(t);
+            TransformModule::updateGlobalTransform(e, t);
         }
     }
 
     void translate(const flecs::entity& e, const float3& localOffset) {
         CHECK_TRANSFORM(e);
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         t.local = mul(t.local, float4x4::translation(localOffset));
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
+
     }
 
     void scale(const flecs::entity& e, const float& scale) {
         CHECK_TRANSFORM(e);
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         t.local = mul(float4x4::scale(scale), t.local);
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
     }
 
     float3 getScale(const flecs::entity& e) {
@@ -92,31 +94,31 @@ namespace lysa::ecs {
             const auto tm = float4x4::translation(getPosition(e));
             const auto rm = float4x4{quat};
             const auto sm = float4x4::scale(getScale(e));
-            auto t = e.get<Transform>();
+            auto& t = e.get_mut<Transform>();
             t.local = mul(mul(rm, sm), tm);
-            e.set(t);
+            TransformModule::updateGlobalTransform(e, t);
         }
     }
 
     void rotateX(const flecs::entity& e, const float angle) {
         CHECK_TRANSFORM(e);
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         t.local = mul(float4x4::rotation_x(angle), t.local);
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
     }
 
     void rotateY(const flecs::entity& e, const float angle) {
         CHECK_TRANSFORM(e);
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         t.local = mul(float4x4::rotation_y(angle), t.local);
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
     }
 
     void rotateZ(const flecs::entity& e, const float angle) {
         CHECK_TRANSFORM(e);
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         t.local = mul(float4x4::rotation_z(angle), t.local);
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
     }
 
     float3 toGlobal(const flecs::entity& e, const float3& local) {
@@ -164,14 +166,15 @@ namespace lysa::ecs {
     void lookAt(const flecs::entity& e, const float3& target) {
         const auto newGlobalTransform = inverse(
             look_at(getPositionGlobal(e), target, getUpVector(e)));
-        auto t = e.get<Transform>();
+        auto& t = e.get_mut<Transform>();
         if (e.parent()) {
             CHECK_TRANSFORM(e.parent());
             t.local = mul(newGlobalTransform, inverse(e.parent().get_ref<Transform>()->global));
         } else {
             t.local = newGlobalTransform;
         }
-        e.set(t);
+        TransformModule::updateGlobalTransform(e, t);
+
     }
 
 }
