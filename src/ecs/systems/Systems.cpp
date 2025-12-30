@@ -14,7 +14,6 @@ import lysa.resources.render_target;
 import lysa.renderers.graphic_pipeline_data;
 
 namespace lysa::ecs {
-
     Modules::Modules(flecs::world& w) {
         meshInstanceModule = w.import<MeshInstanceModule>();
         renderModule = w.import<RenderModule>();
@@ -154,16 +153,16 @@ namespace lysa::ecs {
         w.component<CameraRef>();
         w.component<Viewport>();
         w.component<RenderTarget>();
-        w.observer<Camera>()
-            .event(flecs::OnSet)
-            .event(flecs::OnAdd)
-            .each([&](Camera& cp) {
-                if (cp.isPerspective) {
-                    cp.projection = perspective(radians(cp.fov), cp.aspectRatio, cp.near, cp.far);
-                } else {
-                    cp.projection = orthographic(cp.left, cp.right, cp.top, cp.bottom, cp.near, cp.far);
-                }
-            });
+        // w.observer<Camera>()
+        //     .event(flecs::OnSet)
+        //     .event(flecs::OnAdd)
+        //     .each([&](Camera& cp) {
+        //         if (cp.isPerspective) {
+        //             cp.projection = perspective(radians(cp.fov), cp.aspectRatio, cp.near, cp.far);
+        //         } else {
+        //             cp.projection = orthographic(cp.left, cp.right, cp.top, cp.bottom, cp.near, cp.far);
+        //         }
+        //     });
         w.observer<Scene, const AmbientLight>()
             .event(flecs::OnSet)
             .event(flecs::OnAdd)
@@ -184,23 +183,14 @@ namespace lysa::ecs {
         w.observer<Camera, const Transform>()
             .event(flecs::OnAdd)
             .event(flecs::OnSet)
-            .each([&](Camera&c, const Transform& tr) {
+            .each([&](Camera&c, const Transform&) {
                 if (c.camera == INVALID_ID) {
-                    c.camera = cameraManager.create(
-                        tr.global[3].xyz,
-                        tr.global,
-                        c.projection
-                    ).id;
-                } else {
-                    auto& camera = cameraManager[c.camera];
-                    camera.position = tr.global[3].xyz;
-                    camera.transform = tr.global;
-                    camera.projection = c.projection;
+                    c.camera = cameraManager.create().id;
                 }
             });
-        w.observer<const Camera>()
+        w.observer<const Camera, const Transform>()
            .event(flecs::OnRemove)
-           .each([&](const Camera&c) {
+           .each([&](const Camera&c, const Transform&) {
                cameraManager.destroy(c.camera);
            });
         w.observer<const RenderTarget, const CameraRef, const SceneRef>()
@@ -252,6 +242,20 @@ namespace lysa::ecs {
                     return view.id == id;
                 });
             });
+        w.system<const Camera, const Transform>()
+            .kind(flecs::OnUpdate)
+            .each([&](const Camera& c, const Transform& tr) {
+                auto& camera = cameraManager[c.camera];
+                float4x4 projection{float4x4::identity()};
+                if (c.isPerspective) {
+                    projection = perspective(radians(c.fov), c.aspectRatio, c.near, c.far);
+                } else {
+                    projection = orthographic(c.left, c.right, c.top, c.bottom, c.near, c.far);
+                }
+                camera.position =  tr.global[3].xyz;
+                camera.transform = tr.global;
+                camera.projection = projection;
+            });
         w.system<const RenderTarget>()
             .kind(flecs::OnUpdate)
             .each([&](const RenderTarget& rt) {
@@ -259,7 +263,8 @@ namespace lysa::ecs {
                 if (!renderTargetManager.have(rt.renderTarget)) return;
                 renderTarget.render();
             });
-        }
+
+}
 
 
 }

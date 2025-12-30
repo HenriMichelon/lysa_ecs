@@ -68,8 +68,6 @@ export namespace lysa::ecs {
         float top{};
         // bottom of orthographic projection:
         float bottom{};
-        // World projection matrix
-        float4x4 projection{float4x4::identity()};
 
         unique_id camera{INVALID_ID};
     };
