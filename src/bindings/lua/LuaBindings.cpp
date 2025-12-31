@@ -78,6 +78,9 @@ namespace lysa::ecs {
                 luabridge::overload<const flecs::entity&, const float3&>(&translate),
                 luabridge::overload<const flecs::entity&, float, float, float>(&translate)
             )
+            .addFunction("scale",
+                luabridge::overload<const flecs::entity&, const float&>(&scale)
+            )
             .addFunction("rotate_x",&rotateX)
             .addFunction("rotate_y",&rotateY)
             .addFunction("rotate_z",&rotateZ)

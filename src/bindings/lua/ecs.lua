@@ -89,6 +89,9 @@ return {
     ---@overload fun(e:ecs.entity, x:float,y:float,z:float)
     translate = ecs.translate,
 
+    ---@overload fun(e:ecs.entity, scale:float)
+    scale = ecs.scale,
+
     ---@param e ecs.entity
     ---@param angle number
     rotate_x = ecs.rotate_x,
