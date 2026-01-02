@@ -116,15 +116,15 @@ namespace lysa::ecs {
                     });
                 }
             });
-        // w.observer<const Scene, const MeshInstance, const Visible>()
-        //     .term_at(0).parent()
-        //     .event(flecs::OnAdd)
-        //     .event(flecs::OnRemove)
-        //     .each([&](const flecs::entity& e, const Scene&, const MeshInstance& mi, const Visible&) {
-        //        if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
-        //            e.add<Updated>();
-        //        }
-        //    });
+        w.observer<const Scene, const MeshInstance, const Visible>()
+            .term_at(0).parent()
+            .event(flecs::OnAdd)
+            .event(flecs::OnRemove)
+            .each([&](const flecs::entity& e, const Scene&, const MeshInstance& mi, const Visible&) {
+               if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
+                   e.add<Updated>();
+               }
+           });
         w.observer<const Scene, MeshInstance, const MaterialOverride>()
             .term_at(0).parent()
             .event(flecs::OnSet)
@@ -156,7 +156,7 @@ namespace lysa::ecs {
                 if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
                     e.remove<Updated>();
                     auto& meshInstance = meshInstanceManager[mi.mesh_instance];
-                    // meshInstance.setVisible(e.has<Visible>());
+                    meshInstance.setVisible(e.has<Visible>());
                     meshInstance.setAABB(meshManager[mi.mesh].getAABB().toGlobal(tr.global));
                     meshInstance.setTransform(tr.global);
                     auto& scene = sceneContextManager[sc.context];
