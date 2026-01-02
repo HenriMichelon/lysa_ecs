@@ -11,7 +11,6 @@ import lysa.math;
 import lysa.ecs.flecs;
 
 export namespace lysa::ecs {
-
     /**
      * Object local & world transforms.
      *
@@ -21,9 +20,10 @@ export namespace lysa::ecs {
         /** Local space transform matrix */
         float4x4 local{float4x4::identity()};
         /** World space transform matrix */
-        float4x4 global{};
+        float4x4 global{float4x4::identity()};
     };
 
+    struct TransformUpdated {};
 
     /**
     * Returns the world space position

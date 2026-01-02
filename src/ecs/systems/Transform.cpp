@@ -17,7 +17,7 @@ namespace lysa::ecs {
                : float4x4::identity();
           t.global = mul(t.local, parentMatrix);
           e.add<Updated>();
-          e.children([&](const flecs::entity child) {
+          e.children([&](const flecs::entity& child) {
              if (child.has<Transform>()) {
                   updateGlobalTransform(child, child.get_mut<Transform>());
              }
@@ -30,9 +30,15 @@ namespace lysa::ecs {
           w.observer<Transform>()
             .event(flecs::OnSet)
             .event(flecs::OnAdd)
-            .each([](const flecs::entity e, Transform& t) {
-                updateGlobalTransform(e, t);
+            .each([](const flecs::entity& e, Transform& t) {
+                //e.add<TransformUpdated>();
           });
+         w.system<Transform, const TransformUpdated>()
+            .kind(flecs::OnUpdate)
+            .each([&](const flecs::entity& e, Transform& tr, const TransformUpdated&) {
+                updateGlobalTransform(e, tr);
+                e.remove<TransformUpdated>();
+        });
      }
 
 }

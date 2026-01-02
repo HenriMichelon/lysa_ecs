@@ -63,24 +63,29 @@ namespace lysa::ecs {
         w.component<Visible>();
         w.component<CastShadows>();
         w.component<MeshInstance>();
-        w.observer<const Scene, const MeshInstance, const Transform>()
+        w.observer<const Scene, const MeshInstance>()
             .term_at(0).parent()
             .event(flecs::OnSet)
-            .each([&](const flecs::entity e, const Scene& sc, const MeshInstance& mi, const Transform&tr) {
-                if (mi.mesh == INVALID_ID) { return; }
-                if (mi.mesh_instance != INVALID_ID) {
-                    e.add<Updated>();
-                } else {
-                    addInstance(e, sc, tr);
-                }
+            .each([&](const flecs::entity& e, const Scene&sc, const MeshInstance& mi) {
+                if (mi.mesh == INVALID_ID || mi.mesh_instance == INVALID_ID || sc.context == INVALID_ID) { return; }
+                e.add<Updated>();
+            });
+        w.observer<const Scene, const MeshInstance, Transform&>()
+            .term_at(0).parent()
+            .event(flecs::OnSet)
+            .event(flecs::OnAdd)
+            .each([&](const flecs::entity& e, const Scene&sc, const MeshInstance& mi, Transform& tr) {
+                if (mi.mesh == INVALID_ID || sc.context == INVALID_ID) { return; }
+                // TransformModule::updateGlobalTransform(e, tr);
+                addInstance(e, sc, tr);
             });
         w.observer<const Scene, Transform>()
             .term_at(0).parent()
-            .event(flecs::OnAdd)
-            .each([&](const flecs::entity e, const Scene& sc, Transform& tr) {
+            .event(flecs::OnSet)
+            .each([&](const flecs::entity& e, const Scene& sc, Transform& tr) {
                 if (sc.context == INVALID_ID ) { return; }
+                //TransformModule::updateGlobalTransform(e, tr);
                 addInstance(e, sc, tr);
-                TransformModule::updateGlobalTransform(e, tr);
             });
         w.observer<MeshInstance>()
             .event(flecs::OnRemove)
@@ -97,20 +102,10 @@ namespace lysa::ecs {
                 mi.mesh_instance = INVALID_ID;
                 mi.mesh = INVALID_ID;
             });
-        w.observer<MeshInstance, const Transform>()
-            .event(flecs::OnSet)
-            .each([&](const flecs::entity e, MeshInstance&mi, const Transform& tr) {
-                if (mi.mesh == INVALID_ID) { return; }
-                if (mi.mesh_instance != INVALID_ID) {
-                    e.add<Updated>();
-                } else {
-                    createInstance(e, mi, tr);
-                }
-            });
         w.observer<const Scene, const MeshInstance, const Transform>()
             .term_at(0).parent()
             .event(flecs::OnRemove)
-            .each([&](const flecs::entity e, const Scene& sc, const MeshInstance& mi, const Transform&) {
+            .each([&](const flecs::entity& e, const Scene& sc, const MeshInstance& mi, const Transform&) {
                 if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
                     auto& scene = sceneContextManager[sc.context];
                     scene.removeInstance(mi.mesh_instance, false);
@@ -121,51 +116,47 @@ namespace lysa::ecs {
                     });
                 }
             });
-        w.observer<const Scene, const MeshInstance, const Visible>()
-            .term_at(0).parent()
-            .event(flecs::OnAdd)
-            .event(flecs::OnRemove)
-            .each([&](const flecs::entity e, const Scene&, const MeshInstance& mi, const Visible&) {
-               if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
-                   e.add<Updated>();
-               }
-           });
+        // w.observer<const Scene, const MeshInstance, const Visible>()
+        //     .term_at(0).parent()
+        //     .event(flecs::OnAdd)
+        //     .event(flecs::OnRemove)
+        //     .each([&](const flecs::entity& e, const Scene&, const MeshInstance& mi, const Visible&) {
+        //        if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
+        //            e.add<Updated>();
+        //        }
+        //    });
         w.observer<const Scene, MeshInstance, const MaterialOverride>()
             .term_at(0).parent()
             .event(flecs::OnSet)
-            .each([&](const Scene&sc, MeshInstance& mi, const MaterialOverride&mo) {
+            .each([&](const Scene&sc, const MeshInstance& mi, const MaterialOverride&mo) {
                if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
                     auto& scene = sceneContextManager[sc.context];
+                    auto& newMeshInstance = meshInstanceManager[mi.mesh_instance];
                     scene.removeInstance(mi.mesh_instance, false);
-                    auto& newMeshInstance = meshInstanceManager.create(meshInstanceManager[mi.mesh_instance]);
                     newMeshInstance.getMaterialsOverride()[mo.surfaceIndex] = mo.material;
-                    meshInstanceManager.destroy(mi.mesh_instance);
-                    mi.mesh_instance = newMeshInstance.id;
                     scene.addInstance(mi.mesh_instance, false);
                }
            });
         w.observer<const Scene, MeshInstance, const MaterialOverride>()
             .term_at(0).parent()
             .event(flecs::OnRemove)
-            .each([&](const Scene&sc, MeshInstance& mi, const MaterialOverride&mo) {
+            .each([&](const Scene&sc, const MeshInstance& mi, const MaterialOverride&mo) {
                if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
                     auto& scene = sceneContextManager[sc.context];
+                    auto& newMeshInstance = meshInstanceManager[mi.mesh_instance];
                     scene.removeInstance(mi.mesh_instance, false);
-                    auto& newMeshInstance = meshInstanceManager.create(meshInstanceManager[mi.mesh_instance]);
                     newMeshInstance.getMaterialsOverride().erase(mo.surfaceIndex);
-                    meshInstanceManager.destroy(mi.mesh_instance);
-                    mi.mesh_instance = newMeshInstance.id;
                     scene.addInstance(mi.mesh_instance, false);
                }
            });
         w.system<const Scene, const MeshInstance, const Transform, const Updated>()
             .term_at(0).parent()
             .kind(flecs::OnUpdate)
-            .each([&](const flecs::entity e, const Scene& sc, const MeshInstance& mi, const Transform& tr, const Updated&) {
+            .each([&](const flecs::entity& e, const Scene& sc, const MeshInstance& mi, const Transform& tr, const Updated&) {
                 if (mi.mesh != INVALID_ID && mi.mesh_instance != INVALID_ID) {
                     e.remove<Updated>();
                     auto& meshInstance = meshInstanceManager[mi.mesh_instance];
-                    meshInstance.setVisible(e.has<Visible>());
+                    // meshInstance.setVisible(e.has<Visible>());
                     meshInstance.setAABB(meshManager[mi.mesh].getAABB().toGlobal(tr.global));
                     meshInstance.setTransform(tr.global);
                     auto& scene = sceneContextManager[sc.context];
