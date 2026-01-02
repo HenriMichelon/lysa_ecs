@@ -14,7 +14,6 @@ import lysa.context;
 #ifdef LUA_BINDING
 import lysa.lua;
 #endif
-import lysa.renderers.graphic_pipeline_data;
 
 export import lysa.ecs.components.transform;
 export import lysa.ecs.flecs;
@@ -83,7 +82,7 @@ export namespace lysa::ecs {
 
     struct MeshInstance {
         unique_id mesh{INVALID_ID};
-        std::shared_ptr<MeshInstanceDesc> meshInstance{};
+        unique_id mesh_instance{INVALID_ID};
     };
 
     struct Scene {

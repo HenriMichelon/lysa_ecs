@@ -36,6 +36,7 @@ namespace lysa::ecs {
 
     flecs::entity& load(flecs::entity& root, std::ifstream &stream) {
         const auto& world = root.world();
+        const bool isPrefab = root.has(flecs::Prefab);
         AssetsPack::load(*world.get<Context>().ctx, stream, [&](
            const std::vector<AssetsPack::NodeHeader>& nodeHeaders,
            const std::vector<unique_id>& meshes,
@@ -45,6 +46,9 @@ namespace lysa::ecs {
                 entities[nodeIndex] =
                     world.entity(nodeHeaders[nodeIndex].name)
                     .add<lysa::ecs::Visible>();
+                if (isPrefab) {
+                    entities[nodeIndex].add(flecs::Prefab);
+                }
                 if (nodeHeaders[nodeIndex].meshIndex != -1) {
                     const auto meshId = meshes[nodeHeaders[nodeIndex].meshIndex];
                     entities[nodeIndex].set<lysa::ecs::MeshInstance>({.mesh = meshId});

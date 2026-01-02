@@ -46,7 +46,7 @@ namespace lysa::ecs {
             .endClass()
             .beginClass<MeshInstance>("MeshInstance")
                 .addConstructor<void(unique_id)>()
-                .addProperty("mesh", &MeshInstance::mesh)
+                .addProperty("mesh", &MeshInstance::mesh_instance)
             .endClass()
             .beginClass<Scene>("Scene")
                 .addConstructor<void()>()
