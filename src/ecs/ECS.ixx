@@ -29,5 +29,11 @@ export namespace lysa::ecs {
 
     flecs::entity& load(flecs::entity& root, const std::string &fileURI);
     flecs::entity& load(flecs::entity& root, std::ifstream &stream);
+    flecs::entity& load(flecs::entity* root, const std::string &fileURI) {
+        return load(*root, fileURI);
+    }
+    flecs::entity& load(flecs::entity* root, std::ifstream &stream) {
+        return load(*root, stream);
+    }
 
 }

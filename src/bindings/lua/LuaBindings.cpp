@@ -104,15 +104,32 @@ namespace lysa::ecs {
                         return w->entity<>(name);
                     })
                 )
+                .addFunction("prefab",
+                    luabridge::overload<const flecs::world*>(+[](const flecs::world* w) {
+                        return w->prefab<>();
+                    }),
+                    luabridge::overload<const flecs::world*, const char*>(+[](const flecs::world* w, const char* name) {
+                        return w->prefab<>(name);
+                    })
+                )
             .endClass()
             .addProperty("child_of", +[]{ return flecs::ChildOf;})
+            .addProperty("is_a", +[]{ return flecs::IsA;})
 
             .beginClass<flecs::entity>("entity")
                 .addProperty("is_alive", +[](const flecs::entity* e) { return e->is_alive(); })
                 .addFunction("destruct", &flecs::entity::destruct)
+                .addFunction("is_a",
+                    luabridge::overload<const flecs::entity*, const flecs::entity>(+[](const flecs::entity* e, const flecs::entity s) {
+                        return e->is_a(s);
+                    })
+                )
                 .addFunction("child_of", +[](const flecs::entity* e, const flecs::entity& p) {
                     return e->add(flecs::ChildOf, p);
                 })
+                .addFunction("load",
+                    luabridge::overload<flecs::entity*, const std::string&>(&load)
+                )
                 .addFunction("add",
                     luabridge::overload<const flecs::entity*, const flecs::entity>(+[](const flecs::entity* e, const flecs::entity c) {
                        return e->set(c);

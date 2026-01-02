@@ -64,6 +64,8 @@ return {
     ---@class ecs.entity
     ---@field is_alive boolean
     ---@field destruct fun(self:ecs.entity):nil
+    ---@field is_a fun(self:ecs.entity):nil
+    ---@overload load fun(self:ecs.entity,uri:string):ecs:entity
     ---@field add fun(self:ecs.entity):ecs:entity
     ---@field remove fun(self:ecs.entity, e:ecs.entity):ecs:entity
     ---@field remove fun(self:ecs.entity, self:ecs.entity):ecs:entity
@@ -138,5 +140,7 @@ return {
     ---@class ecs.world
     ---@overload entity fun(self:ecs.world):ecs.entity
     ---@overload entity fun(self:ecs.world, name:string):ecs.entity
+    ---@overload prefab fun(self:ecs.world):ecs.entity
+    ---@overload prefab fun(self:ecs.world, name:string):ecs.entity
     world = ecs.world,
 }
